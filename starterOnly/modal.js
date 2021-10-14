@@ -14,125 +14,169 @@ const formsData = document.querySelectorAll(".formData");
 
 const validate = document.querySelector(".btn-submit");
 const form = document.querySelector("form");
-const closer = document.querySelectorAll(".close");
+const closer = document.querySelectorAll(".closing");
 
 let stringsNumber = document.querySelectorAll(".text-control");
-let allInputs = document.querySelectorAll("input");
-let allRadios = document.querySelectorAll('[name=location]');
-let quantityParticipation;
+let formInputs = document.querySelectorAll("input");
+let inputLocation=document.querySelectorAll('[name = location]');
 
-const regexEmail = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-const regexDate = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
-const regexNumber = /[0-9]/;
+
+const regexLetter = /[0-9]/;
+const regexMail = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+const regexDate = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/;
+
+
+let dataPrenom=null;
+let dataNom=null;
+let dataMail=null;
+let dataDate=null;
+let dataTournament=null;
+let dataCity=null;
+let dataCheck=null;
 
 // launch modal event
 modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
-closer.forEach((closer) => closer.addEventListener("click", closeModal));
 
 // launch modal form
 function launchModal() {
   modalbg.style.display = "block";
 }
 
+closer.forEach(closer=>closer.addEventListener('click',closeModal));
 //ISSUE 1 Fermer la modal
 function closeModal() {
   modalbg.style.display = "none";
 }
 
-let firstName = document.querySelector(".formData>#first");
-let lastName = document.querySelector(".formData>#last");
-let email = document.querySelector(".formData>#email");
 
-// setErrorMessage(firstName, "Vous devez saisir 3 caractères minimum.");
-// setErrorMessage(last);
-// setErrorMessage(email, "Vous mail");
+// Validation formulaire
+validate.addEventListener('click',(e)=>{
+   e.preventDefault();
+   displayError();
+   liveUpdate();
 
-validate.addEventListener("click", validationInputs);
+   data = {dataPrenom,dataNom,dataMail,dataDate,dataTournament,dataCity,dataCheck};
 
- allInputs.forEach((input) => input.addEventListener('keyup', validationInputs));
+   if(dataPrenom && dataNom && dataMail && dataDate && dataTournament && dataCity && dataCheck){
+    success()
+   }
+   console.log(data);
 
+  });
 
-function validationInputs() {
-  console.log("yes");
-  event.preventDefault();
+//Verification sur la saisie
+function liveUpdate(){
+  formInputs.forEach(input=>{ 
+    input.addEventListener('keyup', displayError);
+    input.addEventListener('click', displayError);
+  });
 
-  allInputs.forEach((input) => {
-    let inputName = input.name;
-    let inputValue = input.value;
-  
-    switch (inputName) {
-      case "first":
-        if (inputValue.length < 2) {
-          setErrorMessage(input, " prennom ");
-        } else {
-          setSuccessMessage(input);
-        }
-        break;
-      case "last":
-        if (inputValue.length < 2) {
-          setErrorMessage(input, " name ");
-        } else {
-          setSuccessMessage(input);
-        }
-        break;
-      case "email":
-        if (!regexEmail.test(inputValue)) {
-          setErrorMessage(input, " email ");
-        } else {
-          setSuccessMessage(input);
-        }
-        break;
-      case "birthdate":
-        if (!regexDate.test(inputValue)) {
-          setErrorMessage(input, " date ");
-        } else {
-          setSuccessMessage(input);
-        }
-        break;
-      case "quantity":
-        if ( !regexNumber.test(inputValue) || inputValue < 0 || inputValue > 10) {
-          setErrorMessage(input, " quantiyty ");
+}
 
-        } else {
-          setSuccessMessage(input);
-          quantityParticipation = inputValue;
-        }
-        break;
-      case "location":
-        let radioCochee = 0;
+// Contôle de saisies utilisateurs
+function displayError(){
+  formInputs.forEach(input=>{
+      let inputName = input.name;
+      let inputValue = input.value;
 
-        allRadios.forEach((radio)=>{
-           
-            if(radio.checked){
-              radioCochee++;
-            }
-        });
-        if (((quantityParticipation > 0) && (radioCochee === 0)) || (quantityParticipation === undefined) || (((!quantityParticipation === 0) && !radioCochee ===0))) {
-          setErrorMessage(input, " location ");
-        } else {
-          setSuccessMessage(input);
-        }
-        break;
-        case "checkbox1":
-          if (!input.checked) {
-            setErrorMessage(input, " checkerror ");
-          } else {
-            setSuccessMessage(input);
+      switch (inputName) {
+        case 'first':
+          if(inputValue.length < 3 || regexLetter.test(inputValue)){
+            setError(input,"Le prénom doit comporter au minimum 2 lettres.");
+          }else{
+            removeError(input);
+            dataPrenom = inputValue;
           }
           break;
-    }
-  });
+
+        case 'last':
+          if(inputValue.length < 3 || regexLetter.test(inputValue)){
+            setError(input,"Le nom doit comporter au minimum 2 lettres.");
+          }else{
+            removeError(input);
+            dataNom=inputValue;
+          }
+          break;
+
+        case 'email':
+          if(!regexMail.test(inputValue)){
+            setError(input,"L'adresse email n'est pas valide.");
+          }else{
+            removeError(input);
+            dataMail=inputValue;
+          }
+          break;
+
+        case 'birthdate':
+          if(!regexDate.test(inputValue)){
+            setError(input,"Le format de date de naissance n'est pas valide.");
+          }else{
+            removeError(input);
+            dataDate=inputValue;
+          }
+          break;
+
+        case 'quantity':
+          if(!regexLetter.test(inputValue) || (inputValue<0) || (inputValue>6)){
+            setError(input,"Vous devez saisir au moins un chiffre.");
+          }else{
+            removeError(input);
+            dataTournament=inputValue;
+          }
+          break;
+
+        case 'location':
+            let radioCheck = 0;
+            inputLocation.forEach(location=>{
+             if(location.checked){
+              radioCheck++
+             };
+            });      
+            if(radioCheck === 0){
+              setError(input,"Vous devez choisir votre ville.");
+            }else{
+              removeError(input);
+              dataCity=input.value;
+            }
+          break;
+
+        case 'checkbox1':
+          if(!input.checked){
+            setError(input,"Vous devez vérifier que vous acceptez les termes et conditions.");
+          }else{
+            removeError(input);
+            dataCheck=input.value;
+          }
+          break;
+      
+        default:
+          break;
+      }  
+  })
+};
+
+
+//Attribuer erreur aux champs
+function setError(input, message){
+  let container = input.parentNode;
+  container.setAttribute('data-error-visible', 'true');
+  container.setAttribute('data-error', message);
+};
+
+//Supprimer erreur champs
+function removeError(input){
+  let container = input.parentNode;
+  container.removeAttribute('data-error-visible');
+  container.removeAttribute('data-error');
 }
 
-function setSuccessMessage(input) {
-  let container = input.parentNode;
-  container.removeAttribute("data-error-visible");
-  container.removeAttribute("data-error");
-}
+function success(){
+  form.innerHTML=`
+        <div class="success">
+       <h4>Merci ! Votre réservation a été reçue.</h4>
+        <input class="btn-submit closing" type="submit" class="button" value="Fermer">
+        </div>
+      `;
+};
 
-function setErrorMessage(input, message) {
-  let container = input.parentNode;
-  container.setAttribute("data-error-visible", "true");
-  container.setAttribute("data-error", message);
-}
 
