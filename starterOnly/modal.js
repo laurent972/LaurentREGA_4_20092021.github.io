@@ -58,9 +58,10 @@ validate.addEventListener('click',(e)=>{
    data = {dataPrenom,dataNom,dataMail,dataDate,dataTournament,dataCity,dataCheck};
 
    if(dataPrenom && dataNom && dataMail && dataDate && dataTournament && dataCity && dataCheck){
-    success()
+    success();
+    console.log(data);
    }
-   console.log(data);
+
 
   });
 
@@ -110,6 +111,7 @@ function displayError(){
         case 'birthdate':
           if(!regexDate.test(inputValue)){
             setError(input,"Le format de date de naissance n'est pas valide.");
+            dataDate=null;
           }else{
             removeError(input);
             dataDate=inputValue;
